@@ -3,6 +3,7 @@ package com.monik.jain.engineeringai.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,16 @@ import java.util.List;
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
     private List<Hit> hits;
+
+    private onItemClick onItemClick;
+
+    public PostAdapter.onItemClick getOnItemClick() {
+        return onItemClick;
+    }
+
+    public void setOnItemClick(PostAdapter.onItemClick onItemClick) {
+        this.onItemClick = onItemClick;
+    }
 
     public PostAdapter(List<Hit> hits) {
         this.hits = hits;
@@ -43,6 +54,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         holder.txtTitle.setText(hit.getTitle());
         holder.txtCreatedAt.setText(hit.getCreatedAt());
         holder.itemView.setOnClickListener(holder);
+        holder.swtActivatePost.setChecked(hit.isEnabled());
 
     }
 
@@ -65,16 +77,28 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             txtTitle = itemView.findViewById(R.id.txtTitle);
             txtCreatedAt = itemView.findViewById(R.id.txtCreatedAt);
             swtActivatePost = itemView.findViewById(R.id.swtActivatePost);
+            swtActivatePost.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    swtActivatePost.setChecked(isChecked);
+                    hits.get(getAdapterPosition()).setEnabled(isChecked);
+                    if(onItemClick != null){
+                        onItemClick.onClick(hits);
+                    }
+                }
+            });
         }
 
         @Override
         public void onClick(View v) {
+
             swtActivatePost.setChecked(!swtActivatePost.isChecked());
-            hits.get(getAdapterPosition()).setEnabled(true);
+
+
         }
     }
 
-    interface onItemClick {
-        public void onClick(int position);
+    public interface onItemClick {
+        public void onClick(List<Hit> hits);
     }
 }

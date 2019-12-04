@@ -1,6 +1,7 @@
 package com.monik.jain.engineeringai;
 
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -8,8 +9,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.monik.jain.engineeringai.API.ServiceGenerator;
-import com.monik.jain.engineeringai.adapters.CustomErrorItem;
-import com.monik.jain.engineeringai.adapters.CustomLoadingItem;
 import com.monik.jain.engineeringai.adapters.PostAdapter;
 import com.monik.jain.engineeringai.models.Hit;
 import com.monik.jain.engineeringai.models.Posts;
@@ -27,7 +26,7 @@ import ru.alexbykov.nopaginate.paginate.NoPaginate;
 import static androidx.recyclerview.widget.DividerItemDecoration.HORIZONTAL;
 import static com.monik.jain.engineeringai.customView.PaginationListener.PAGE_START;
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, PostAdapter.onItemClick {
 
     private RecyclerView rvPosts;
     private PostAdapter postAdapter;
@@ -39,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private boolean isLoading = false;
     int itemCount = 0;
     private NoPaginate noPaginate;
+    private TextView txtToolbar;
     private ArrayList<Hit> hits = new ArrayList<>();
 
     @Override
@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private void initControls() {
         findAllViews();
         postAdapter = new PostAdapter();
+        postAdapter.setOnItemClick(this);
         rvPosts.setAdapter(postAdapter);
         noPaginate = NoPaginate.with(rvPosts)
                 .setOnLoadMoreListener(new OnLoadMoreListener() {
@@ -72,12 +73,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             postsCall.enqueue(new Callback<Posts>() {
                 @Override
                 public void onResponse(Call<Posts> call, Response<Posts> response) {
-                    if(refreshLayout.isRefreshing()){
+                    if (refreshLayout.isRefreshing()) {
                         refreshLayout.setRefreshing(false);
                     }
                     Posts posts = response.body();
-                    if(startPage == 1){
+                    if (startPage == 1) {
                         hits.clear();
+                        txtToolbar.setText(String.valueOf(0));
                     }
                     if (posts != null) {
                         hits.addAll(posts.getHits());
@@ -88,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
                 @Override
                 public void onFailure(Call<Posts> call, Throwable t) {
-                    if(refreshLayout.isRefreshing()){
+                    if (refreshLayout.isRefreshing()) {
                         refreshLayout.setRefreshing(false);
                     }
                     noPaginate.showError(true);
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void findAllViews() {
         rvPosts = findViewById(R.id.rvPosts);
+        txtToolbar = findViewById(R.id.txtToolbar);
         refreshLayout = findViewById(R.id.refreshLayout);
         refreshLayout.setOnRefreshListener(this);
 
@@ -116,5 +119,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     protected void onDestroy() {
         super.onDestroy();
         noPaginate.unbind();
+    }
+
+    @Override
+    public void onClick(List<Hit> hits) {
+        int count = 0;
+        for (int i = 0; i < hits.size(); i++) {
+            if (hits.get(i).isEnabled()) {
+                count++;
+            }
+        }
+        txtToolbar.setText(String.valueOf(count));
     }
 }
