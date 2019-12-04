@@ -11,7 +11,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:padding="4dp"
+        android:textColor="#000000"
         android:textSize="14sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/swtActivatePost"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,11 +24,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="4dp"
+        android:textColor="#000000"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="@id/txtTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtTitle"
-        tools:text="createdAt" />
+        tools:text="Created At" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/swtActivatePost"
